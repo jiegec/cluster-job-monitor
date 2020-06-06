@@ -1,0 +1,10 @@
+interval = 60
+name = "pbs"
+
+[scheduler]
+type = "PBS"
+config = "qstat -f -F dsv"
+
+[notification]
+type = "Slack"
+config = "https://hooks.slack.com/services/REDACTED/REDACTED/REDACTED"

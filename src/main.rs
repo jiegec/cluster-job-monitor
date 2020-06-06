@@ -1,4 +1,6 @@
-use cluster_job_monitor::{job::Job, pbs::parse_pbs_stat, slack::notify_slack};
+use cluster_job_monitor::{
+    job::Job, pbs::parse_pbs_stat, slack::notify_slack, slurm::parse_slurm_stat,
+};
 use dotenv::dotenv;
 use env_logger;
 use jfs::Store;
@@ -22,6 +24,7 @@ struct Args {
 #[serde(tag = "type", content = "config")]
 enum Scheduler {
     PBS(String),
+    Slurm(String),
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -33,6 +36,7 @@ enum Notification {
 #[derive(Deserialize, Serialize, Debug, Clone)]
 struct Config {
     scheduler: Scheduler,
+    name: String,
     interval: u64,
     notification: Option<Notification>,
 }
@@ -57,25 +61,36 @@ async fn main() -> std::io::Result<()> {
                 let content = String::from_utf8(output).expect("valid utf8");
                 parse_pbs_stat(&content)
             }
+            Scheduler::Slurm(cmd) => {
+                let output = Command::new("sh").arg("-c").arg(cmd).output()?.stdout;
+                let content = String::from_utf8(output).expect("valid utf8");
+                parse_slurm_stat(&content)
+            }
         };
         debug!("Got {:?}", jobs);
 
         if jobs != last_jobs {
             info!("Jobs changed");
 
-            let mut msg = String::from("Cluster job changes:\n");
+            let mut msg = format!("Cluster {} job changes:\n", config.name);
 
             // added jobs
             for job in &jobs {
                 if !last_jobs.iter().any(|j| j.id == job.id) {
-                    msg.push_str(&format!("Job added: {} id {} state {:?}\n", job.name, job.id, job.state));
+                    msg.push_str(&format!(
+                        "Job added: {} id {} state {:?}\n",
+                        job.name, job.id, job.state
+                    ));
                 }
             }
 
             // removed jobs
             for job in &last_jobs {
                 if !jobs.iter().any(|j| j.id == job.id) {
-                    msg.push_str(&format!("Job removed: {} id {} state {:?}\n", job.name, job.id, job.state));
+                    msg.push_str(&format!(
+                        "Job removed: {} id {} state {:?}\n",
+                        job.name, job.id, job.state
+                    ));
                 }
             }
 

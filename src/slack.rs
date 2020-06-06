@@ -12,5 +12,5 @@ pub async fn notify_slack(url: &str, msg: &str) {
         .send()
         .await
         .expect("Send message to slack");
-    info!("Mesage posted to slack with code {:?}", res.status());
+    info!("Message posted to slack with code {:?}", res.status());
 }

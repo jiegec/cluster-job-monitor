@@ -1,0 +1,10 @@
+interval = 60
+name = "slurm"
+
+[scheduler]
+type = "Slurm"
+config = "squeue -alh"
+
+[notification]
+type = "Slack"
+config = "https://hooks.slack.com/services/REDACTED/REDACTED/REDACTED"
