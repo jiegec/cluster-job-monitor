@@ -62,9 +62,33 @@ async fn main() -> std::io::Result<()> {
         if jobs != last_jobs {
             info!("Jobs changed");
 
-            let mut msg = String::new();
-            // TODO: meaningful message
-            msg = format!("{:?}", jobs);
+            let mut msg = String::from("Cluster job changes:\n");
+
+            // added jobs
+            for job in &jobs {
+                if !last_jobs.iter().any(|j| j.id == job.id) {
+                    msg.push_str(&format!("Job added: {}\n", job.id));
+                }
+            }
+
+            // removed jobs
+            for job in &last_jobs {
+                if !jobs.iter().any(|j| j.id == job.id) {
+                    msg.push_str(&format!("Job removed: {}\n", job.id));
+                }
+            }
+
+            // state changed
+            for job in &jobs {
+                if let Some(old_job) = last_jobs.iter().find(|j| j.id == job.id) {
+                    if old_job.state != job.state {
+                        msg.push_str(&format!(
+                            "Job {} state changed: {:?} -> {:?}\n",
+                            job.id, old_job.state, job.state
+                        ));
+                    }
+                }
+            }
 
             match &config.notification {
                 Some(Notification::Slack(url)) => {

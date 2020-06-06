@@ -4,6 +4,7 @@ use serde_derive::{Deserialize, Serialize};
 pub enum JobState {
     Running,
     Queuing,
+    Unknown,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
