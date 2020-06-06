@@ -68,7 +68,7 @@ async fn main() -> std::io::Result<()> {
             // added jobs
             for job in &jobs {
                 if !last_jobs.iter().any(|j| j.id == job.id) {
-                    msg.push_str(&format!("Job added: {}\n", job.id));
+                    msg.push_str(&format!("Job added: {} state {:?}\n", job.id, job.state));
                 }
             }
 

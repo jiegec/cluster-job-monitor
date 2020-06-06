@@ -1,14 +1,16 @@
 use crate::job::{Job, JobState};
-use log::*;
 
 pub fn parse_pbs_stat(dsv: &str) -> Vec<Job> {
     let mut res = vec![];
     for line in dsv.split("\n") {
+        if !line.contains("|") {
+            continue;
+        }
         let mut id = String::new();
         let mut name = String::new();
         let mut owner = String::new();
         let mut state = JobState::Unknown;
-        for column in dsv.split("|") {
+        for column in line.split("|") {
             if column.starts_with("Job Id:") {
                 id = column[8..].to_string();
             } else if column.starts_with("Job_Name=") {
