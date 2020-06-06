@@ -9,7 +9,8 @@ use serde_derive::{Serialize, Deserialize};
 use std::fs::File;
 use std::path::PathBuf;
 use std::{process::Command, io::Read};
-use cluster_job_monitor;
+use cluster_job_monitor::{job::Job, pbs::parse_pbs_stat};
+use jfs::Store;
 
 #[derive(StructOpt)]
 struct Args {
@@ -45,15 +46,22 @@ async fn main() -> std::io::Result<()> {
 	file.read_to_string(&mut content)?;
 	let config: Config = toml::from_str(&content)?;
 	info!("Cluster job monitor is up with config {:?}", config);
+	let db = Store::new("cluster-job-montor").unwrap();
+	let mut last_jobs = db.get::<Vec<Job>>("jobs").unwrap_or(Vec::new());
 	loop {
 		info!("Querying scheduler");
-		match &config.scheduler {
+		let jobs = match &config.scheduler {
 			Scheduler::PBS(cmd) => {
 				let output = Command::new("sh").arg("-c").arg(cmd).output()?.stdout;
 				let json = String::from_utf8(output).expect("valid utf8");
-				let jobs = cluster_job_monitor::pbs::parse_pbs_stat(&json);
-				println!("{:?}", jobs);
+				parse_pbs_stat(&json)
 			}
+		};
+
+		if jobs != last_jobs {
+			info!("Jobs changed");
+			db.save_with_id(&jobs, "jobs").unwrap();
+			last_jobs = jobs;
 		}
 		delay_for(Duration::from_millis(config.interval * 1000)).await;
 	}
