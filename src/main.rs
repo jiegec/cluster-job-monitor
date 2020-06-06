@@ -47,7 +47,7 @@ async fn main() -> std::io::Result<()> {
     file.read_to_string(&mut content)?;
     let config: Config = toml::from_str(&content)?;
     info!("Cluster job monitor is up with config {:?}", config);
-    let db = Store::new("cluster-job-montor").unwrap();
+    let db = Store::new("cluster-job-monitor").unwrap();
     let mut last_jobs = db.get::<Vec<Job>>("jobs").unwrap_or(Vec::new());
     loop {
         info!("Querying scheduler");
