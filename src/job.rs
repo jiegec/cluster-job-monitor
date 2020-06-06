@@ -1,4 +1,4 @@
-use serde_derive::{Serialize, Deserialize};
+use serde_derive::{Deserialize, Serialize};
 
 #[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
 pub enum JobState {
@@ -11,5 +11,5 @@ pub struct Job {
     pub id: String,
     pub name: String,
     pub owner: String,
-    pub state: JobState
+    pub state: JobState,
 }
