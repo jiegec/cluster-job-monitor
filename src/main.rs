@@ -78,8 +78,8 @@ async fn main() -> std::io::Result<()> {
             for job in &jobs {
                 if !last_jobs.iter().any(|j| j.id == job.id) {
                     msg.push_str(&format!(
-                        "Job added: {} id {} state {:?}\n",
-                        job.name, job.id, job.state
+                        "++++++: name {} owner {} id {} state {:?}\n",
+                        job.name, job.owner, job.id, job.state
                     ));
                 }
             }
@@ -88,8 +88,8 @@ async fn main() -> std::io::Result<()> {
             for job in &last_jobs {
                 if !jobs.iter().any(|j| j.id == job.id) {
                     msg.push_str(&format!(
-                        "Job removed: {} id {} state {:?}\n",
-                        job.name, job.id, job.state
+                        "------: name {} owner {} id {} state {:?}\n",
+                        job.name, job.owner, job.id, job.state
                     ));
                 }
             }
@@ -99,8 +99,8 @@ async fn main() -> std::io::Result<()> {
                 if let Some(old_job) = last_jobs.iter().find(|j| j.id == job.id) {
                     if old_job.state != job.state {
                         msg.push_str(&format!(
-                            "Job {} id {} state changed: {:?} -> {:?}\n",
-                            job.name, job.id, old_job.state, job.state
+                            ">>>>>>: name {} owner {} id {} state changed: {:?} -> {:?}\n",
+                            job.name, job.owner, job.id, old_job.state, job.state
                         ));
                     }
                 }
