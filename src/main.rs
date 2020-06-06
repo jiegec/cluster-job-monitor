@@ -54,10 +54,11 @@ async fn main() -> std::io::Result<()> {
         let jobs = match &config.scheduler {
             Scheduler::PBS(cmd) => {
                 let output = Command::new("sh").arg("-c").arg(cmd).output()?.stdout;
-                let json = String::from_utf8(output).expect("valid utf8");
-                parse_pbs_stat(&json)
+                let content = String::from_utf8(output).expect("valid utf8");
+                parse_pbs_stat(&content)
             }
         };
+        debug!("Got {:?}", jobs);
 
         if jobs != last_jobs {
             info!("Jobs changed");

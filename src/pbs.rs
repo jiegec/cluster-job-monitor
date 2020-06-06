@@ -1,32 +1,32 @@
 use crate::job::{Job, JobState};
-use json;
 use log::*;
 
-pub fn parse_pbs_stat(json: &str) -> Vec<Job> {
+pub fn parse_pbs_stat(dsv: &str) -> Vec<Job> {
     let mut res = vec![];
-    if let Ok(root) = json::parse(json) {
-        debug!("PBS version {:?}", root["pbs_version"]);
-        match &root["Jobs"] {
-            json::JsonValue::Object(jobs) => {
-                for (id, job) in jobs.iter() {
-                    let state = job["Job_state"].dump();
-                    let job_state = if state == "Q" {
-                        JobState::Queuing
-                    } else if state == "R" {
-                        JobState::Running
-                    } else {
-                        JobState::Unknown
-                    };
-                    res.push(Job {
-                        id: String::from(id),
-                        name: job["Job_Name"].dump(),
-                        owner: job["Job_Owner"].dump(),
-                        state: job_state,
-                    });
-                }
+    for line in dsv.split("\n") {
+        let mut id = String::new();
+        let mut name = String::new();
+        let mut owner = String::new();
+        let mut state = JobState::Unknown;
+        for column in dsv.split("|") {
+            if column.starts_with("Job Id:") {
+                id = column[8..].to_string();
+            } else if column.starts_with("Job_Name=") {
+                name = column[10..].to_string();
+            } else if column.starts_with("Job_Owner=") {
+                owner = column[11..].to_string();
+            } else if column == "job_state=Q" {
+                state = JobState::Queuing;
+            } else if column == "job_state=R" {
+                state = JobState::Running;
             }
-            _ => {}
         }
+        res.push(Job {
+            id,
+            name,
+            owner,
+            state,
+        });
     }
     res
 }
