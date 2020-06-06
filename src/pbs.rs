@@ -14,7 +14,7 @@ pub fn parse_pbs_stat(dsv: &str) -> Vec<Job> {
             if column.starts_with("Job Id:") {
                 id = column[8..].to_string();
             } else if column.starts_with("Job_Name=") {
-                name = column[10..].to_string();
+                name = column[9..].to_string();
             } else if column.starts_with("Job_Owner=") {
                 owner = column[11..].to_string();
             } else if column == "job_state=Q" {
