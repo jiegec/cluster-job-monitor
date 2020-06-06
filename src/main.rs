@@ -5,6 +5,7 @@ use dotenv::dotenv;
 use env_logger;
 use jfs::Store;
 use log::*;
+use rand::Rng;
 use serde_derive::{Deserialize, Serialize};
 use std::fs::File;
 use std::path::PathBuf;
@@ -118,6 +119,11 @@ async fn main() -> std::io::Result<()> {
         } else {
             info!("Jobs unchanged");
         }
-        delay_for(Duration::from_millis(config.interval * 1000)).await;
+
+        // add some randomness to sleep time
+        let mut rng = rand::thread_rng();
+        let scale: f64 = 0.9 + rng.gen::<f64>() * 0.2;
+        let millis = (config.interval as f64 * scale * 1000.0) as u64;
+        delay_for(Duration::from_millis(millis)).await;
     }
 }
