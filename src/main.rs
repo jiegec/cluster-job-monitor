@@ -76,7 +76,7 @@ async fn main() -> std::io::Result<()> {
             info!("Jobs changed");
 
             let mut msg = format!(
-                "Cluster {} job changes(current {} jobs):\n",
+                "Cluster {} job changes (current {} jobs):\n",
                 config.name,
                 jobs.len()
             );
