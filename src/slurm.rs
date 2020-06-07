@@ -1,4 +1,5 @@
 use crate::job::{Job, JobState};
+use chrono::Utc;
 
 pub fn parse_slurm_stat(dsv: &str) -> Vec<Job> {
     let mut res = vec![];
@@ -33,6 +34,7 @@ pub fn parse_slurm_stat(dsv: &str) -> Vec<Job> {
             name,
             owner,
             state,
+            update_time: Utc::now(),
         });
     }
     res

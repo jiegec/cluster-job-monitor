@@ -1,3 +1,4 @@
+use chrono::Utc;
 use cluster_job_monitor::{
     job::Job, pbs::parse_pbs_stat, slack::notify_slack, slurm::parse_slurm_stat,
 };
@@ -12,6 +13,7 @@ use std::path::PathBuf;
 use std::time::Duration;
 use std::{io::Read, process::Command};
 use structopt::StructOpt;
+use timeago::Formatter;
 use tokio;
 use tokio::time::delay_for;
 
@@ -78,6 +80,7 @@ async fn main() -> std::io::Result<()> {
                 config.name,
                 jobs.len()
             );
+            let now = Utc::now();
 
             // added jobs
             for job in &jobs {
@@ -93,8 +96,12 @@ async fn main() -> std::io::Result<()> {
             for job in &last_jobs {
                 if !jobs.iter().any(|j| j.id == job.id) {
                     msg.push_str(&format!(
-                        "*Del*: name *{}* owner *{}* id *{}* state *{:?}*\n",
-                        job.name, job.owner, job.id, job.state
+                        "*Del*: name *{}* owner *{}* id *{}* state *{:?}* after *{:?}*\n",
+                        job.name,
+                        job.owner,
+                        job.id,
+                        job.state,
+                        Formatter::new().convert_chrono(job.update_time, now)
                     ));
                 }
             }
@@ -104,8 +111,8 @@ async fn main() -> std::io::Result<()> {
                 if let Some(old_job) = last_jobs.iter().find(|j| j.id == job.id) {
                     if old_job.state != job.state {
                         msg.push_str(&format!(
-                            "*Upd*: name *{}* owner *{}* id *{}* state changed: *{:?}* -> *{:?}*\n",
-                            job.name, job.owner, job.id, old_job.state, job.state
+                            "*Upd*: name *{}* owner *{}* id *{}* state changed: *{:?}* -> *{:?}* after *{:?}*\n",
+                            job.name, job.owner, job.id, old_job.state, job.state, Formatter::new().convert_chrono(job.update_time, now)
                         ));
                     }
                 }
