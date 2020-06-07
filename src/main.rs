@@ -58,7 +58,7 @@ async fn main() -> std::io::Result<()> {
     let mut last_jobs = db.get::<Vec<Job>>("jobs").unwrap_or(Vec::new());
     loop {
         info!("Querying scheduler");
-        let jobs = match &config.scheduler {
+        let mut jobs = match &config.scheduler {
             Scheduler::PBS(cmd) => {
                 let output = Command::new("sh").arg("-c").arg(cmd).output()?.stdout;
                 let content = String::from_utf8(output).expect("valid utf8");
@@ -107,13 +107,15 @@ async fn main() -> std::io::Result<()> {
             }
 
             // state changed
-            for job in &jobs {
+            for job in &mut jobs {
                 if let Some(old_job) = last_jobs.iter().find(|j| j.id == job.id) {
                     if old_job.state != job.state {
                         msg.push_str(&format!(
                             "*Upd*: name *{}* owner *{}* id *{}* state changed: *{:?}* -> *{:?}* last update *{}*\n",
                             job.name, job.owner, job.id, old_job.state, job.state, Formatter::new().convert_chrono(old_job.update_time, now)
                         ));
+                    } else {
+                        job.update_time = old_job.update_time;
                     }
                 }
             }
