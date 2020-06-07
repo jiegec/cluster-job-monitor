@@ -73,7 +73,11 @@ async fn main() -> std::io::Result<()> {
         if jobs != last_jobs {
             info!("Jobs changed");
 
-            let mut msg = format!("Cluster {} job changes:\n", config.name);
+            let mut msg = format!(
+                "Cluster {} job changes(current {} jobs):\n",
+                config.name,
+                jobs.len()
+            );
 
             // added jobs
             for job in &jobs {
