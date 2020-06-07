@@ -96,7 +96,7 @@ async fn main() -> std::io::Result<()> {
             for job in &last_jobs {
                 if !jobs.iter().any(|j| j.id == job.id) {
                     msg.push_str(&format!(
-                        "*Del*: name *{}* owner *{}* id *{}* state *{:?}* after *{}*\n",
+                        "*Del*: name *{}* owner *{}* id *{}* state *{:?}* last update *{}*\n",
                         job.name,
                         job.owner,
                         job.id,
@@ -111,8 +111,8 @@ async fn main() -> std::io::Result<()> {
                 if let Some(old_job) = last_jobs.iter().find(|j| j.id == job.id) {
                     if old_job.state != job.state {
                         msg.push_str(&format!(
-                            "*Upd*: name *{}* owner *{}* id *{}* state changed: *{:?}* -> *{:?}* after *{}*\n",
-                            job.name, job.owner, job.id, old_job.state, job.state, Formatter::new().convert_chrono(job.update_time, now)
+                            "*Upd*: name *{}* owner *{}* id *{}* state changed: *{:?}* -> *{:?}* last update *{}*\n",
+                            job.name, job.owner, job.id, old_job.state, job.state, Formatter::new().convert_chrono(old_job.update_time, now)
                         ));
                     }
                 }
