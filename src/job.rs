@@ -1,11 +1,22 @@
 use chrono::{DateTime, Utc};
 use serde_derive::{Deserialize, Serialize};
+use std::fmt;
 
-#[derive(Deserialize, Serialize, Debug, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Eq, PartialEq)]
 pub enum JobState {
     Running,
     Queuing,
     Unknown,
+}
+
+impl fmt::Debug for JobState {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        match self {
+            JobState::Running => write!(f, ":arrow_forward:"),
+            JobState::Queuing => write!(f, ":double_verticle_bar:"),
+            JobState::Unknown => write!(f, ":black_right_pointing_triangl:"),
+        }
+    }
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
