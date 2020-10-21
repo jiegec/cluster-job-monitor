@@ -15,7 +15,7 @@ use std::{io::Read, process::Command};
 use structopt::StructOpt;
 use timeago::Formatter;
 use tokio;
-use tokio::time::delay_for;
+use tokio::time::sleep;
 
 #[derive(StructOpt)]
 struct Args {
@@ -137,6 +137,6 @@ async fn main() -> std::io::Result<()> {
         let mut rng = rand::thread_rng();
         let scale: f64 = 0.9 + rng.gen::<f64>() * 0.2;
         let millis = (config.interval as f64 * scale * 1000.0) as u64;
-        delay_for(Duration::from_millis(millis)).await;
+        sleep(Duration::from_millis(millis)).await;
     }
 }

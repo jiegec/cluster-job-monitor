@@ -11,18 +11,18 @@ keywords = ["slack", "hpc", "pbs", "slurm"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-dotenv = "0.9"
-env_logger = "0.6"
-log = "0.4"
-tokio = { version = "0.2", features = ["macros", "time"] }
-serde = "1.0"
-serde_json = "1.0"
-serde_derive = "1.0"
-structopt = "0.3"
-toml = "0.5"
-json = "0.12"
-jfs = "0.6"
-rand = "0.7"
-reqwest = { version = "0.10", features = ["json", "native-tls-vendored"], default-features = false }
-chrono = { version = "0.4", features = ["serde"] }
-timeago = "0.2"
+dotenv = "0.15.0"
+env_logger = "0.8.1"
+log = "0.4.11"
+tokio = { version = "0.3.0", features = ["macros", "time", "rt-multi-thread"] }
+serde = "1.0.117"
+serde_json = "1.0.59"
+serde_derive = "1.0.117"
+structopt = "0.3.20"
+toml = "0.5.7"
+json = "0.12.4"
+jfs = "0.6.2"
+rand = "0.7.3"
+reqwest = { version = "0.10.8", features = ["json", "native-tls-vendored"], default-features = false }
+chrono = { version = "0.4.19", features = ["serde"] }
+timeago = "0.2.1"
