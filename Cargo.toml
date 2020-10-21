@@ -4,6 +4,9 @@ version = "0.1.0"
 authors = ["Jiajie Chen <c@jia.je>"]
 edition = "2018"
 license = "GPL-3.0-or-later"
+description = "A tool to monitor jobs in HPC cluster."
+repository = "https://github.com/jiegec/cluster-job-monitor"
+keywords = ["slack", "hpc", "pbs", "slurm"]
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
