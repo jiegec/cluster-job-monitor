@@ -14,15 +14,15 @@ keywords = ["slack", "hpc", "pbs", "slurm"]
 dotenv = "0.15.0"
 env_logger = "0.8.1"
 log = "0.4.11"
-tokio = { version = "0.3.0", features = ["macros", "time", "rt-multi-thread"] }
-serde = "1.0.117"
+tokio = { version = "1.6.0", features = ["macros", "time", "rt-multi-thread"] }
+serde = "1.0.126"
 serde_json = "1.0.59"
-serde_derive = "1.0.117"
-structopt = "0.3.20"
-toml = "0.5.7"
+serde_derive = "1.0.126"
+structopt = "0.3.21"
+toml = "0.5.8"
 json = "0.12.4"
 jfs = "0.6.2"
-rand = "0.7.3"
-reqwest = { version = "0.10.8", features = ["json", "native-tls-vendored"], default-features = false }
+rand = "0.8.3"
+reqwest = { version = "0.11.3", features = ["json", "native-tls-vendored"], default-features = false }
 chrono = { version = "0.4.19", features = ["serde"] }
 timeago = "0.2.1"
