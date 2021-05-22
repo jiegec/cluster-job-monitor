@@ -13,7 +13,7 @@ impl fmt::Debug for JobState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             JobState::Running => write!(f, ":arrow_forward:"),
-            JobState::Queuing => write!(f, ":double_vertical_bar:"),
+            JobState::Queuing => write!(f, ":alarm_clock:"),
             JobState::Unknown => write!(f, ":black_right_pointing_triangle:"),
         }
     }
