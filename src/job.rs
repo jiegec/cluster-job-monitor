@@ -2,7 +2,7 @@ use chrono::{DateTime, Utc};
 use serde_derive::{Deserialize, Serialize};
 use std::fmt;
 
-#[derive(Deserialize, Serialize, Clone, Eq, PartialEq)]
+#[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Ord, PartialOrd)]
 pub enum JobState {
     Running,
     Queuing,
@@ -19,7 +19,7 @@ impl fmt::Debug for JobState {
     }
 }
 
-#[derive(Deserialize, Serialize, Debug, Clone)]
+#[derive(Deserialize, Serialize, Debug, Clone, Ord, PartialOrd)]
 pub struct Job {
     pub id: String,
     pub name: String,

@@ -70,6 +70,7 @@ async fn main() -> std::io::Result<()> {
                 parse_slurm_stat(&content)
             }
         };
+        jobs.sort();
         debug!("Got {:?}", jobs);
 
         if jobs != last_jobs {
