@@ -23,7 +23,7 @@ struct Args {
     #[structopt(short, long)]
     config: PathBuf,
 
-    #[structopt(short, long, default_value = "histroy.log")]
+    #[structopt(short, long, default_value = "history.log")]
     history: PathBuf,
 }
 
