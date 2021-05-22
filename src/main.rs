@@ -1,4 +1,4 @@
-use chrono::Utc;
+use chrono::{DateTime, Utc};
 use cluster_job_monitor::{
     job::Job, pbs::parse_pbs_stat, slack::notify_slack, slurm::parse_slurm_stat,
 };
@@ -8,7 +8,8 @@ use jfs::Store;
 use log::*;
 use rand::Rng;
 use serde_derive::{Deserialize, Serialize};
-use std::fs::File;
+use std::fs::{File, OpenOptions};
+use std::io::Write;
 use std::path::PathBuf;
 use std::time::Duration;
 use std::{io::Read, process::Command};
@@ -21,6 +22,9 @@ use tokio::time::sleep;
 struct Args {
     #[structopt(short, long)]
     config: PathBuf,
+
+    #[structopt(short, long, default_value = "histroy.log")]
+    history: PathBuf,
 }
 
 #[derive(Deserialize, Serialize, Debug, Clone)]
@@ -44,6 +48,17 @@ struct Config {
     notification: Option<Notification>,
 }
 
+#[derive(Serialize, Debug)]
+struct HistoryEntry {
+    now: DateTime<Utc>,
+    update_time: Option<DateTime<Utc>>,
+    action: String,
+    name: String,
+    owner: String,
+    id: String,
+    state: String,
+}
+
 #[tokio::main]
 async fn main() -> std::io::Result<()> {
     dotenv().ok();
@@ -54,6 +69,13 @@ async fn main() -> std::io::Result<()> {
     file.read_to_string(&mut content)?;
     let config: Config = toml::from_str(&content)?;
     info!("Cluster job monitor is up with config {:?}", config);
+
+    let mut history = OpenOptions::new()
+        .write(true)
+        .append(true)
+        .create(true)
+        .open(&args.history)?;
+
     let db = Store::new("cluster-job-monitor-store").unwrap();
     let mut last_jobs = db.get::<Vec<Job>>("jobs").unwrap_or(Vec::new());
     loop {
@@ -86,8 +108,19 @@ async fn main() -> std::io::Result<()> {
             // added jobs
             for job in &jobs {
                 if !last_jobs.iter().any(|j| j.id == job.id) {
+                    let entry = HistoryEntry {
+                        now: Utc::now(),
+                        update_time: None,
+                        action: "add".to_string(),
+                        name: job.name.clone(),
+                        owner: job.owner.clone(),
+                        id: job.id.clone(),
+                        state: format!("{:?}", job.state),
+                    };
+                    writeln!(history, "{}", serde_json::to_string(&entry)?)?;
+
                     msg.push_str(&format!(
-                        ":heavy_plus_sign: : name *{}* owner *{}* id *{}* state *{:?}*\n",
+                        ":heavy_plus_sign: : name *{}* owner *{}* id *{}* state *{}*\n",
                         job.name, job.owner, job.id, job.state
                     ));
                 }
@@ -96,8 +129,19 @@ async fn main() -> std::io::Result<()> {
             // removed jobs
             for job in &last_jobs {
                 if !jobs.iter().any(|j| j.id == job.id) {
+                    let entry = HistoryEntry {
+                        now: Utc::now(),
+                        update_time: Some(job.update_time),
+                        action: "removed".to_string(),
+                        name: job.name.clone(),
+                        owner: job.owner.clone(),
+                        id: job.id.clone(),
+                        state: format!("{:?}", job.state),
+                    };
+                    writeln!(history, "{}", serde_json::to_string(&entry)?)?;
+
                     msg.push_str(&format!(
-                        ":heavy_minus_sign: : name *{}* owner *{}* id *{}* state *{:?}* last update *{}*\n",
+                        ":heavy_minus_sign: : name *{}* owner *{}* id *{}* state *{}* last update *{}*\n",
                         job.name,
                         job.owner,
                         job.id,
@@ -111,8 +155,19 @@ async fn main() -> std::io::Result<()> {
             for job in &mut jobs {
                 if let Some(old_job) = last_jobs.iter().find(|j| j.id == job.id) {
                     if old_job.state != job.state {
+                        let entry = HistoryEntry {
+                            now: Utc::now(),
+                            update_time: Some(job.update_time),
+                            action: "changed".to_string(),
+                            name: job.name.clone(),
+                            owner: job.owner.clone(),
+                            id: job.id.clone(),
+                            state: format!("{:?}", job.state),
+                        };
+                        writeln!(history, "{}", serde_json::to_string(&entry)?)?;
+
                         msg.push_str(&format!(
-                            ":heavy_check_mark: : name *{}* owner *{}* id *{}* state changed: *{:?}* -> *{:?}* last update *{}*\n",
+                            ":heavy_check_mark: : name *{}* owner *{}* id *{}* state changed: *{}* -> *{}* last update *{}*\n",
                             job.name, job.owner, job.id, old_job.state, job.state, Formatter::new().convert_chrono(old_job.update_time, now)
                         ));
                     } else {
