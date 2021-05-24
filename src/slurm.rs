@@ -27,6 +27,12 @@ pub fn parse_slurm_stat(dsv: &str) -> Vec<Job> {
                 state = JobState::Queuing;
             } else if index == 5 && column == "RUNNING" {
                 state = JobState::Running;
+            } else if index == 5 && column == "SUSPENDED" {
+                state = JobState::Suspended;
+            } else if index == 5 && column == "COMPLETING" {
+                state = JobState::Completing;
+            } else if index == 5 && column == "COMPLETED" {
+                state = JobState::Completed;
             }
         }
         res.push(Job {

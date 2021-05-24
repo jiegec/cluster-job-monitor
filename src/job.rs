@@ -4,17 +4,22 @@ use std::fmt;
 
 #[derive(Deserialize, Serialize, Clone, Eq, PartialEq, Ord, PartialOrd, Debug)]
 pub enum JobState {
-    Running,
     Queuing,
+    Running,
+    Suspended,
+    Completing,
+    Completed,
     Unknown,
 }
 
 impl fmt::Display for JobState {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
-            JobState::Running => write!(f, ":arrow_forward:"),
             JobState::Queuing => write!(f, ":alarm_clock:"),
-            JobState::Unknown => write!(f, ":black_right_pointing_triangle:"),
+            JobState::Running => write!(f, ":arrow_forward:"),
+            JobState::Suspended => write!(f, ":double_vertical_bar:"),
+            JobState::Completed | JobState::Completing => write!(f, ":checkered_flag:"),
+            JobState::Unknown => write!(f, ":question:"),
         }
     }
 }
