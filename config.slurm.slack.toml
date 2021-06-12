@@ -3,7 +3,7 @@ name = "slurm"
 
 [scheduler]
 type = "Slurm"
-config = "squeue -o %all"
+config = "squeue -O jobid,name,username,state"
 
 [notification]
 type = "Slack"
