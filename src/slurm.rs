@@ -1,39 +1,38 @@
 use crate::job::{Job, JobState};
 use chrono::Utc;
+use std::collections::HashMap;
 
 pub fn parse_slurm_stat(dsv: &str) -> Vec<Job> {
     let mut res = vec![];
+    let mut index_map: HashMap<String, usize> = HashMap::new();
     for line in dsv.split("\n") {
-        if !line.contains(" ") {
+        if line.starts_with("ACCOUNT|") {
+            // header
+            for (index, column) in line.split("|").enumerate() {
+                index_map.insert(column.to_string(), index);
+            }
+
+            continue;
+        } else if !line.contains("|") {
             continue;
         }
-        let mut index = 0;
-        let mut id = String::new();
-        let mut name = String::new();
-        let mut owner = String::new();
+
         let mut state = JobState::Unknown;
-        for column in line.split(" ") {
-            if column.len() == 0 {
-                continue;
-            }
-            index += 1;
-            if index == 1 {
-                id = column.to_string();
-            } else if index == 3 {
-                name = column.to_string();
-            } else if index == 4 {
-                owner = column.to_string();
-            } else if index == 5 && column == "PENDING" {
-                state = JobState::Queuing;
-            } else if index == 5 && column == "RUNNING" {
-                state = JobState::Running;
-            } else if index == 5 && column == "SUSPENDED" {
-                state = JobState::Suspended;
-            } else if index == 5 && column == "COMPLETING" {
-                state = JobState::Completing;
-            } else if index == 5 && column == "COMPLETED" {
-                state = JobState::Completed;
-            }
+        let columns: Vec<&str> = line.split("|").collect();
+        let id = columns[index_map["JOBID"]].trim().to_string();
+        let name = columns[index_map["NAME"]].trim().to_string();
+        let owner = columns[index_map["USER"]].trim().to_string();
+        let raw_state = columns[index_map["STATE "]].trim().to_string();
+        if raw_state == "PENDING" {
+            state = JobState::Queuing;
+        } else if raw_state == "RUNNING" {
+            state = JobState::Running;
+        } else if raw_state == "SUSPENDED" {
+            state = JobState::Suspended;
+        } else if raw_state == "COMPLETING" {
+            state = JobState::Completing;
+        } else if raw_state == "COMPLETED" {
+            state = JobState::Completed;
         }
         res.push(Job {
             id,
