@@ -60,7 +60,7 @@ struct HistoryEntry {
 }
 
 #[tokio::main]
-async fn main() -> std::io::Result<()> {
+async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     env_logger::init();
     let args = Args::from_args();
