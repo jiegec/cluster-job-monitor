@@ -13,17 +13,18 @@ use std::io::Write;
 use std::path::PathBuf;
 use std::time::Duration;
 use std::{io::Read, process::Command};
-use structopt::StructOpt;
 use timeago::Formatter;
 use tokio;
 use tokio::time::sleep;
+use clap::Parser;
 
-#[derive(StructOpt)]
+
+#[derive(Parser)]
 struct Args {
-    #[structopt(short, long)]
+    #[arg(short, long)]
     config: PathBuf,
 
-    #[structopt(short, long, default_value = "history.log")]
+    #[arg(short, long, default_value = "history.log")]
     history: PathBuf,
 }
 
@@ -63,7 +64,7 @@ struct HistoryEntry {
 async fn main() -> anyhow::Result<()> {
     dotenv().ok();
     env_logger::init();
-    let args = Args::from_args();
+    let args = Args::parse();
     let mut file = File::open(&args.config)?;
     let mut content = String::new();
     file.read_to_string(&mut content)?;
