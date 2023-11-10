@@ -1,6 +1,6 @@
 [package]
 name = "cluster-job-monitor"
-version = "0.2.1"
+version = "0.2.2"
 authors = ["Jiajie Chen <c@jia.je>"]
 edition = "2021"
 license = "GPL-3.0-or-later"
